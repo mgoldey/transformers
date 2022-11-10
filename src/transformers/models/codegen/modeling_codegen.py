@@ -716,7 +716,9 @@ class CodeGenForCausalLM(CodeGenPreTrainedModel):
             shift_logits = lm_logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
             loss = loss.to(hidden_states.dtype)

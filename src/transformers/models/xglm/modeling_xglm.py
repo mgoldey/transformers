@@ -913,7 +913,9 @@ class XGLMForCausalLM(XGLMPreTrainedModel):
             shift_labels[:, :-1] = labels[:, 1:].clone()
             shift_labels[:, -1] = self.config.pad_token_id
 
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(logits.view(-1, self.config.vocab_size), shift_labels.view(-1))
 
         if not return_dict:

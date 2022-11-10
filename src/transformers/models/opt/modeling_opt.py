@@ -946,7 +946,9 @@ class OPTForCausalLM(OPTPreTrainedModel):
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(shift_logits.view(-1, self.config.vocab_size), shift_labels.view(-1))
 
         if not return_dict:
@@ -1091,10 +1093,14 @@ class OPTForSequenceClassification(OPTPreTrainedModel):
                 else:
                     loss = loss_fct(pooled_logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(pooled_logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(pooled_logits, labels)
         if not return_dict:
             output = (pooled_logits,) + transformer_outputs[1:]
@@ -1220,7 +1226,10 @@ class OPTForQuestionAnswering(OPTPreTrainedModel):
             start_positions = start_positions.clamp(0, ignored_index)
             end_positions = end_positions.clamp(0, ignored_index)
 
-            loss_fct = CrossEntropyLoss(ignore_index=ignored_index)
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                ignore_index=ignored_index,
+            )
             start_loss = loss_fct(start_logits, start_positions)
             end_loss = loss_fct(end_logits, end_positions)
             total_loss = (start_loss + end_loss) / 2

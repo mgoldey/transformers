@@ -189,6 +189,8 @@ class PretrainedConfig(PushToHubMixin):
         id2label (`Dict[int, str]`, *optional*):
             A map from index (for instance prediction index, or target index) to label.
         label2id (`Dict[str, int]`, *optional*): A map from label to index for the model.
+        label_weights (`List[float]`, *optional*):
+            A list of weights used for loss calculation ordered by id of each label
         num_labels (`int`, *optional*):
             Number of labels to use in the last layer added to the model, typically for a classification task.
         task_specific_params (`Dict[str, Any]`, *optional*):
@@ -307,6 +309,7 @@ class PretrainedConfig(PushToHubMixin):
         self.finetuning_task = kwargs.pop("finetuning_task", None)
         self.id2label = kwargs.pop("id2label", None)
         self.label2id = kwargs.pop("label2id", None)
+        self.label_weights = kwargs.pop("label_weights", None)
         if self.id2label is not None:
             num_labels = kwargs.pop("num_labels", None)
             if num_labels is not None and len(self.id2label) != num_labels:

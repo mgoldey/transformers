@@ -393,7 +393,9 @@ class MMBTForClassification(nn.Module):
                 loss_fct = MSELoss()
                 loss = loss_fct(logits.view(-1), labels.view(-1))
             else:
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
         if not return_dict:

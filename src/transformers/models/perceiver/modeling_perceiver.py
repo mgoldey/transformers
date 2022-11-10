@@ -805,7 +805,7 @@ class PerceiverModel(PerceiverPreTrainedModel):
         [1, 2]
 
         >>> # to train, one can train the model using standard cross-entropy:
-        >>> criterion = torch.nn.CrossEntropyLoss()
+        >>> criterion = torch.nn.CrossEntropyLoss(torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,)
 
         >>> labels = torch.tensor([1])
         >>> loss = criterion(logits, labels)
@@ -851,7 +851,7 @@ class PerceiverModel(PerceiverPreTrainedModel):
         [1, 2]
 
         >>> # to train, one can train the model using standard cross-entropy:
-        >>> criterion = torch.nn.CrossEntropyLoss()
+        >>> criterion = torch.nn.CrossEntropyLoss(torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,)
 
         >>> labels = torch.tensor([1])
         >>> loss = criterion(logits, labels)
@@ -1069,7 +1069,9 @@ class PerceiverForMaskedLM(PerceiverPreTrainedModel):
 
         masked_lm_loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss()  # -100 index = padding token
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )  # -100 index = padding token
             masked_lm_loss = loss_fct(logits.view(-1, self.config.vocab_size), labels.view(-1))
 
         if not return_dict:
@@ -1178,10 +1180,14 @@ class PerceiverForSequenceClassification(PerceiverPreTrainedModel):
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits, labels)
 
         if not return_dict:
@@ -1321,10 +1327,14 @@ class PerceiverForImageClassificationLearned(PerceiverPreTrainedModel):
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits, labels)
 
         if not return_dict:
@@ -1461,10 +1471,14 @@ class PerceiverForImageClassificationFourier(PerceiverPreTrainedModel):
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits, labels)
 
         if not return_dict:
@@ -1602,10 +1616,14 @@ class PerceiverForImageClassificationConvProcessing(PerceiverPreTrainedModel):
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits, labels)
 
         if not return_dict:

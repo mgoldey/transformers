@@ -1350,7 +1350,9 @@ class JukeboxConditionalAutoregressive(nn.Module):
             self.fc_proj_out = nn.Linear(config.hidden_size, self.embed_dim, bias=False)
             if self.share_embed_tokens_fc_proj_out:
                 self.fc_proj_out.weight = self.embed_tokens.weight
-            self.loss = torch.nn.CrossEntropyLoss()
+            self.loss = torch.nn.CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
 
     def forward(
         self,
@@ -1403,7 +1405,9 @@ class JukeboxConditionalAutoregressive(nn.Module):
             return hidden_states
 
         hidden_states = self.fc_proj_out(hidden_states)  # Predictions
-        loss_fn = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss(
+            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+        )
         if get_sep_loss:
             lyric_hidden_states = hidden_states[:, : self.encoder_len].reshape(-1, self.embed_dim)
             token_hidden_states = hidden_states[:, self.encoder_len :].reshape(-1, self.embed_dim)

@@ -1469,7 +1469,9 @@ class XLNetLMHeadModel(XLNetPreTrainedModel):
         loss = None
         if labels is not None:
             # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
 
         if not return_dict:
@@ -1585,10 +1587,14 @@ class XLNetForSequenceClassification(XLNetPreTrainedModel):
                 else:
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
+                loss_fct = CrossEntropyLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
+                loss_fct = BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 loss = loss_fct(logits, labels)
 
         if not return_dict:
@@ -1676,7 +1682,9 @@ class XLNetForTokenClassification(XLNetPreTrainedModel):
 
         loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
         if not return_dict:
@@ -1780,7 +1788,9 @@ class XLNetForMultipleChoice(XLNetPreTrainedModel):
 
         loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(reshaped_logits, labels.view(-1))
 
         if not return_dict:
@@ -1888,7 +1898,10 @@ class XLNetForQuestionAnsweringSimple(XLNetPreTrainedModel):
             start_positions = start_positions.clamp(0, ignored_index)
             end_positions = end_positions.clamp(0, ignored_index)
 
-            loss_fct = CrossEntropyLoss(ignore_index=ignored_index)
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                ignore_index=ignored_index,
+            )
             start_loss = loss_fct(start_logits, start_positions)
             end_loss = loss_fct(end_logits, end_positions)
             total_loss = (start_loss + end_loss) / 2
@@ -2022,7 +2035,9 @@ class XLNetForQuestionAnswering(XLNetPreTrainedModel):
             # during training, compute the end logits based on the ground truth of the start position
             end_logits = self.end_logits(hidden_states, start_positions=start_positions, p_mask=p_mask)
 
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             start_loss = loss_fct(start_logits, start_positions)
             end_loss = loss_fct(end_logits, end_positions)
             total_loss = (start_loss + end_loss) / 2
@@ -2030,7 +2045,9 @@ class XLNetForQuestionAnswering(XLNetPreTrainedModel):
             if cls_index is not None and is_impossible is not None:
                 # Predict answerability from the representation of CLS and START
                 cls_logits = self.answer_class(hidden_states, start_positions=start_positions, cls_index=cls_index)
-                loss_fct_cls = nn.BCEWithLogitsLoss()
+                loss_fct_cls = nn.BCEWithLogitsLoss(
+                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                )
                 cls_loss = loss_fct_cls(cls_logits, is_impossible)
 
                 # note(zhiliny): by default multiply the loss by 0.5 so that the scale is comparable to start_loss and end_loss

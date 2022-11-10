@@ -96,7 +96,10 @@ class RetriBertModel(RetriBertPreTrainedModel):
         self.project_query = nn.Linear(config.hidden_size, config.projection_dim, bias=False)
         self.project_doc = nn.Linear(config.hidden_size, config.projection_dim, bias=False)
 
-        self.ce_loss = nn.CrossEntropyLoss(reduction="mean")
+        self.ce_loss = nn.CrossEntropyLoss(
+            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            reduction="mean",
+        )
 
         # Initialize weights and apply final processing
         self.post_init()

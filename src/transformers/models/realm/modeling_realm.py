@@ -1487,7 +1487,10 @@ class RealmKnowledgeAugEncoder(RealmPreTrainedModel):
                 mlm_mask = mlm_mask.type(torch.float32)
 
             # Compute marginal log-likelihood
-            loss_fct = CrossEntropyLoss(reduction="none")  # -100 index = padding token
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                reduction="none",
+            )  # -100 index = padding token
 
             # [batch_size * num_candidates * joint_seq_len, vocab_size]
             mlm_logits = prediction_scores.view(-1, self.config.vocab_size)

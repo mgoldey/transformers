@@ -1510,7 +1510,9 @@ class WavLMForSequenceClassification(WavLMPreTrainedModel):
 
         loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
 
         if not return_dict:
@@ -1624,7 +1626,9 @@ class WavLMForAudioFrameClassification(WavLMPreTrainedModel):
 
         loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(
+                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            )
             loss = loss_fct(logits.view(-1, self.num_labels), torch.argmax(labels.view(-1, self.num_labels), axis=1))
 
         if not return_dict:
@@ -1647,7 +1651,9 @@ class AMSoftmaxLoss(nn.Module):
         self.margin = margin
         self.num_labels = num_labels
         self.weight = nn.Parameter(torch.randn(input_dim, num_labels), requires_grad=True)
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = nn.CrossEntropyLoss(
+            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+        )
 
     def forward(self, hidden_states, labels):
         labels = labels.flatten()
