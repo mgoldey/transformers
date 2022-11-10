@@ -986,7 +986,9 @@ class VisualBertForPreTraining(VisualBertPreTrainedModel):
                 )
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
             sentence_image_loss = loss_fct(seq_relationship_score.view(-1, 2), sentence_image_labels.view(-1))
@@ -1001,7 +1003,9 @@ class VisualBertForPreTraining(VisualBertPreTrainedModel):
                 )
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             total_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
 
@@ -1157,7 +1161,9 @@ class VisualBertForMultipleChoice(VisualBertPreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(reshaped_logits, labels)
 
@@ -1401,7 +1407,9 @@ class VisualBertForVisualReasoning(VisualBertPreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(reshaped_logits, labels.view(-1))
 

@@ -850,7 +850,9 @@ class GPTJForCausalLM(GPTJPreTrainedModel):
             shift_labels = labels[..., 1:].contiguous()
             # Flatten the tokens
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
@@ -999,12 +1001,16 @@ class GPTJForSequenceClassification(GPTJPreTrainedModel):
                     loss = loss_fct(pooled_logits, labels)
             elif self.config.problem_type == "single_label_classification":
                 loss_fct = CrossEntropyLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(pooled_logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(pooled_logits, labels)
         if not return_dict:
@@ -1110,7 +1116,9 @@ class GPTJForQuestionAnswering(GPTJPreTrainedModel):
             end_positions = end_positions.clamp(0, ignored_index)
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=ignored_index,
             )
             start_loss = loss_fct(start_logits, start_positions)

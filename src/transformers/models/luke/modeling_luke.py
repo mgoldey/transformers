@@ -1301,7 +1301,10 @@ class LukeForMaskedLM(LukePreTrainedModel):
         self.entity_predictions = EntityPredictionHead(config)
 
         self.loss_fn = nn.CrossEntropyLoss(
-            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None, ignore_index=-1
+            torch.tensor(self.config.label_weights, device=self.device)
+            if self.config.label_weights is not None
+            else None,
+            ignore_index=-1,
         )
 
         # Initialize weights and apply final processing
@@ -1883,12 +1886,16 @@ class LukeForSequenceClassification(LukePreTrainedModel):
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
                 loss_fct = CrossEntropyLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(logits, labels)
 
@@ -1986,7 +1993,9 @@ class LukeForTokenClassification(LukePreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
@@ -2098,7 +2107,9 @@ class LukeForQuestionAnswering(LukePreTrainedModel):
             end_positions.clamp_(0, ignored_index)
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=ignored_index,
             )
             start_loss = loss_fct(start_logits, start_positions)
@@ -2234,7 +2245,9 @@ class LukeForMultipleChoice(LukePreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(reshaped_logits, labels)
 

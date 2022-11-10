@@ -880,7 +880,9 @@ class BloomForCausalLM(BloomPreTrainedModel):
             batch_size, seq_length, vocab_size = shift_logits.shape
             # Flatten the tokens
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(
                 shift_logits.view(batch_size * seq_length, vocab_size), shift_labels.view(batch_size * seq_length)
@@ -1053,12 +1055,16 @@ class BloomForSequenceClassification(BloomPreTrainedModel):
                     loss = loss_fct(pooled_logits, labels)
             elif self.config.problem_type == "single_label_classification":
                 loss_fct = CrossEntropyLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(pooled_logits, labels)
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(pooled_logits, labels)
         if not return_dict:
@@ -1160,7 +1166,9 @@ class BloomForTokenClassification(BloomPreTrainedModel):
         if labels is not None:
             batch_size, seq_length = labels.shape
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(
                 logits.view(batch_size * seq_length, self.num_labels), labels.view(batch_size * seq_length)
@@ -1253,7 +1261,9 @@ class BloomForQuestionAnswering(BloomPreTrainedModel):
             end_positions = end_positions.clamp(0, ignored_index)
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=ignored_index,
             )
             start_loss = loss_fct(start_logits, start_positions)

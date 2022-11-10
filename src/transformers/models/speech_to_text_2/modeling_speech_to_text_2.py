@@ -929,7 +929,9 @@ class Speech2Text2ForCausalLM(Speech2Text2PreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(logits.view(-1, self.config.vocab_size), labels.view(-1))
 

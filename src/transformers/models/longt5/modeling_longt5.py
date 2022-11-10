@@ -2057,7 +2057,9 @@ class LongT5ForConditionalGeneration(LongT5PreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=-100,
             )
             loss = loss_fct(lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))

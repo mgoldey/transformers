@@ -1056,11 +1056,15 @@ class LxmertForPreTraining(LxmertPreTrainedModel):
         self.loss_fcts = {
             "l2": SmoothL1Loss(reduction="none"),
             "visual_ce": CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 reduction="none",
             ),
             "ce": CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             ),
         }
 
@@ -1315,7 +1319,9 @@ class LxmertForQuestionAnswering(LxmertPreTrainedModel):
 
         # Loss function
         self.loss = CrossEntropyLoss(
-            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            torch.tensor(self.config.label_weights, device=self.device)
+            if self.config.label_weights is not None
+            else None,
         )
 
     def resize_num_qa_labels(self, num_labels):

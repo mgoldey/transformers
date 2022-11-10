@@ -1111,7 +1111,9 @@ class DPTForSemanticSegmentation(DPTPreTrainedModel):
                     )
                 # compute weighted loss
                 loss_fct = CrossEntropyLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                     ignore_index=self.config.semantic_loss_ignore_index,
                 )
                 main_loss = loss_fct(upsampled_logits, labels)

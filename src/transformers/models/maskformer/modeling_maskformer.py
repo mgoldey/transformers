@@ -395,7 +395,8 @@ def sigmoid_focal_loss(
         `torch.Tensor`: The computed loss.
     """
     criterion = nn.BCEWithLogitsLoss(
-        torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None, reduction="none"
+        torch.tensor(self.config.label_weights, device=self.device) if self.config.label_weights is not None else None,
+        reduction="none",
     )
     probs = inputs.sigmoid()
     cross_entropy_loss = criterion(inputs, labels)
@@ -458,7 +459,8 @@ def pair_wise_sigmoid_focal_loss(inputs: Tensor, labels: Tensor, alpha: float = 
     height_and_width = inputs.shape[1]
 
     criterion = nn.BCEWithLogitsLoss(
-        torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None, reduction="none"
+        torch.tensor(self.config.label_weights, device=self.device) if self.config.label_weights is not None else None,
+        reduction="none",
     )
     prob = inputs.sigmoid()
     cross_entropy_loss_pos = criterion(inputs, torch.ones_like(inputs))
@@ -1796,7 +1798,9 @@ class MaskFormerLoss(nn.Module):
         pred_logits = class_queries_logits
         batch_size, num_queries, _ = pred_logits.shape
         criterion = nn.CrossEntropyLoss(
-            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            torch.tensor(self.config.label_weights, device=self.device)
+            if self.config.label_weights is not None
+            else None,
             weight=self.empty_weight,
         )
         idx = self._get_predictions_permutation_indices(indices)

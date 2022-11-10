@@ -97,7 +97,9 @@ class RetriBertModel(RetriBertPreTrainedModel):
         self.project_doc = nn.Linear(config.hidden_size, config.projection_dim, bias=False)
 
         self.ce_loss = nn.CrossEntropyLoss(
-            torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+            torch.tensor(self.config.label_weights, device=self.device)
+            if self.config.label_weights is not None
+            else None,
             reduction="mean",
         )
 

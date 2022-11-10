@@ -1121,7 +1121,9 @@ class NezhaForPreTraining(NezhaPreTrainedModel):
         total_loss = None
         if labels is not None and next_sentence_label is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
             next_sentence_loss = loss_fct(seq_relationship_score.view(-1, 2), next_sentence_label.view(-1))
@@ -1216,7 +1218,9 @@ class NezhaForMaskedLM(NezhaPreTrainedModel):
         masked_lm_loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )  # -100 index = padding token
             masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
 
@@ -1334,7 +1338,9 @@ class NezhaForNextSentencePrediction(NezhaPreTrainedModel):
         next_sentence_loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             next_sentence_loss = loss_fct(seq_relationship_scores.view(-1, 2), labels.view(-1))
 
@@ -1434,12 +1440,16 @@ class NezhaForSequenceClassification(NezhaPreTrainedModel):
                     loss = loss_fct(logits, labels)
             elif self.config.problem_type == "single_label_classification":
                 loss_fct = CrossEntropyLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss(
-                    torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                    torch.tensor(self.config.label_weights, device=self.device)
+                    if self.config.label_weights is not None
+                    else None,
                 )
                 loss = loss_fct(logits, labels)
         if not return_dict:
@@ -1533,7 +1543,9 @@ class NezhaForMultipleChoice(NezhaPreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(reshaped_logits, labels)
 
@@ -1618,7 +1630,9 @@ class NezhaForTokenClassification(NezhaPreTrainedModel):
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
             )
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
@@ -1718,7 +1732,9 @@ class NezhaForQuestionAnswering(NezhaPreTrainedModel):
             end_positions = end_positions.clamp(0, ignored_index)
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=ignored_index,
             )
             start_loss = loss_fct(start_logits, start_positions)

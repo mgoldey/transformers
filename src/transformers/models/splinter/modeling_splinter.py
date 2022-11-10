@@ -926,7 +926,9 @@ class SplinterForQuestionAnswering(SplinterPreTrainedModel):
             end_positions.clamp_(0, ignored_index)
 
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=ignored_index,
             )
             start_loss = loss_fct(start_logits, start_positions)
@@ -1078,7 +1080,9 @@ class SplinterForPreTraining(SplinterPreTrainedModel):
             # tokens as well as for start and end positions of padded
             # question tokens.
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 ignore_index=self.config.pad_token_id,
             )
             start_loss = loss_fct(

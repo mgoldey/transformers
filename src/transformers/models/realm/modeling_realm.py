@@ -1488,7 +1488,9 @@ class RealmKnowledgeAugEncoder(RealmPreTrainedModel):
 
             # Compute marginal log-likelihood
             loss_fct = CrossEntropyLoss(
-                torch.tensor(self.config.label_weights) if self.config.label_weights is not None else None,
+                torch.tensor(self.config.label_weights, device=self.device)
+                if self.config.label_weights is not None
+                else None,
                 reduction="none",
             )  # -100 index = padding token
 
