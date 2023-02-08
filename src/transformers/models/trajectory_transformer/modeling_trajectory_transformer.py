@@ -17,7 +17,7 @@
 import math
 import os
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -478,7 +478,7 @@ class TrajectoryTransformerModel(TrajectoryTransformerPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-    ):
+    ) -> Union[Tuple[torch.Tensor], TrajectoryTransformerOutput]:
         r"""
         Returns:
 
@@ -538,7 +538,6 @@ class TrajectoryTransformerModel(TrajectoryTransformerPreTrainedModel):
         all_hidden_states = () if output_hidden_states else None
 
         for i, (block, layer_past) in enumerate(zip(self.blocks, past_key_values)):
-
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states,)
 

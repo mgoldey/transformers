@@ -144,6 +144,12 @@ class PretrainedConfig(PushToHubMixin):
         top_p (`float`, *optional*, defaults to 1):
             Value that will be used by default in the `generate` method of the model for `top_p`. If set to float < 1,
             only the most probable tokens with probabilities that add up to `top_p` or higher are kept for generation.
+        typical_p (`float`, *optional*, defaults to 1):
+            Local typicality measures how similar the conditional probability of predicting a target token next is to
+            the expected conditional probability of predicting a random token next, given the partial text already
+            generated. If set to float < 1, the smallest set of the most locally typical tokens with probabilities that
+            add up to `typical_p` or higher are kept for generation. See [this
+            paper](https://arxiv.org/pdf/2202.00666.pdf) for more details.
         repetition_penalty (`float`, *optional*, defaults to 1):
             Parameter for repetition penalty that will be used by default in the `generate` method of the model. 1.0
             means no penalty.
@@ -311,6 +317,8 @@ class PretrainedConfig(PushToHubMixin):
         self.label2id = kwargs.pop("label2id", None)
         self.label_weights = kwargs.pop("label_weights", None)
         if self.id2label is not None:
+            if not isinstance(self.id2label, dict):
+                raise ValueError("Argument id2label should be a dictionary.")
             num_labels = kwargs.pop("num_labels", None)
             if num_labels is not None and len(self.id2label) != num_labels:
                 logger.warning(
@@ -435,7 +443,7 @@ class PretrainedConfig(PushToHubMixin):
         if push_to_hub:
             commit_message = kwargs.pop("commit_message", None)
             repo_id = kwargs.pop("repo_id", save_directory.split(os.path.sep)[-1])
-            repo_id, token = self._create_repo(repo_id, **kwargs)
+            repo_id = self._create_repo(repo_id, **kwargs)
             files_timestamps = self._get_files_timestamps(save_directory)
 
         # If we have a custom config, we copy the file defining it in the folder and set the attributes so it can be
@@ -451,7 +459,11 @@ class PretrainedConfig(PushToHubMixin):
 
         if push_to_hub:
             self._upload_modified_files(
-                save_directory, repo_id, files_timestamps, commit_message=commit_message, token=token
+                save_directory,
+                repo_id,
+                files_timestamps,
+                commit_message=commit_message,
+                token=kwargs.get("use_auth_token"),
             )
 
     @classmethod
@@ -735,7 +747,7 @@ class PretrainedConfig(PushToHubMixin):
         return json.loads(text)
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return isinstance(other, PretrainedConfig) and (self.__dict__ == other.__dict__)
 
     def __repr__(self):
         return f"{self.__class__.__name__} {self.to_json_string()}"
@@ -945,6 +957,7 @@ def get_configuration_file(configuration_files: List[str]) -> str:
 
 
 PretrainedConfig.push_to_hub = copy_func(PretrainedConfig.push_to_hub)
-PretrainedConfig.push_to_hub.__doc__ = PretrainedConfig.push_to_hub.__doc__.format(
-    object="config", object_class="AutoConfig", object_files="configuration file"
-)
+if PretrainedConfig.push_to_hub.__doc__ is not None:
+    PretrainedConfig.push_to_hub.__doc__ = PretrainedConfig.push_to_hub.__doc__.format(
+        object="config", object_class="AutoConfig", object_files="configuration file"
+    )

@@ -455,6 +455,7 @@ class _BaseAutoModelClass:
             model_class = get_class_from_dynamic_module(
                 pretrained_model_name_or_path, module_file + ".py", class_name, **hub_kwargs, **kwargs
             )
+            model_class.register_for_auto_class(cls.__name__)
             return model_class.from_pretrained(
                 pretrained_model_name_or_path, *model_args, config=config, **hub_kwargs, **kwargs
             )
@@ -580,6 +581,10 @@ class _LazyAutoMapping(OrderedDict):
         self._model_mapping = model_mapping
         self._extra_content = {}
         self._modules = {}
+
+    def __len__(self):
+        common_keys = set(self._config_mapping.keys()).intersection(self._model_mapping.keys())
+        return len(common_keys) + len(self._extra_content)
 
     def __getitem__(self, key):
         if key in self._extra_content:

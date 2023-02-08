@@ -144,7 +144,6 @@ class EsmFoldModelTester:
 
 @require_torch
 class EsmFoldModelTest(ModelTesterMixin, unittest.TestCase):
-
     test_mismatched_shapes = False
 
     all_model_classes = (EsmForProteinFolding,) if is_torch_available() else ()
@@ -247,7 +246,7 @@ class EsmFoldModelTest(ModelTesterMixin, unittest.TestCase):
 class EsmModelIntegrationTest(TestCasePlus):
     @slow
     def test_inference_protein_folding(self):
-        model = EsmForProteinFolding.from_pretrained("Rocketknight1/esmfold_v1").float()
+        model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").float()
         model.eval()
         input_ids = torch.tensor([[0, 6, 4, 13, 5, 4, 16, 12, 11, 7, 2]])
         position_outputs = model(input_ids)["positions"]

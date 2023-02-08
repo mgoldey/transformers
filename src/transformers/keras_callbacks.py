@@ -6,10 +6,9 @@ from typing import Callable, List, Optional, Union
 
 import numpy as np
 import tensorflow as tf
+from huggingface_hub import Repository, create_repo
 from packaging.version import parse
 from tensorflow.keras.callbacks import Callback
-
-from huggingface_hub import Repository
 
 from . import IntervalStrategy, PreTrainedTokenizerBase
 from .modelcard import TrainingSummary
@@ -320,7 +319,7 @@ class PushToHubCallback(Callback):
         hub_model_id: Optional[str] = None,
         hub_token: Optional[str] = None,
         checkpoint: bool = False,
-        **model_card_args
+        **model_card_args,
     ):
         super().__init__()
         if checkpoint and save_strategy != "epoch":
@@ -339,11 +338,9 @@ class PushToHubCallback(Callback):
 
         self.output_dir = output_dir
         self.hub_model_id = hub_model_id
-        self.repo = Repository(
-            str(self.output_dir),
-            clone_from=self.hub_model_id,
-            use_auth_token=hub_token if hub_token else True,
-        )
+        create_repo(self.hub_model_id, exist_ok=True)
+        self.repo = Repository(str(self.output_dir), clone_from=self.hub_model_id, token=hub_token)
+
         self.tokenizer = tokenizer
         self.last_job = None
         self.checkpoint = checkpoint
@@ -394,17 +391,22 @@ class PushToHubCallback(Callback):
             )
 
     def on_train_end(self, logs=None):
+        # Makes sure the latest version of the model is uploaded
         if self.last_job is not None and not self.last_job.is_done:
-            self.last_job._process.terminate()  # Gotta go fast
+            logging.info("Pushing the last epoch to the Hub, this may take a while...")
             while not self.last_job.is_done:
                 sleep(1)
-        self.model.save_pretrained(self.output_dir)
-        if self.tokenizer is not None:
-            self.tokenizer.save_pretrained(self.output_dir)
-        train_summary = TrainingSummary.from_keras(
-            model=self.model, model_name=self.hub_model_id, keras_history=self.training_history, **self.model_card_args
-        )
-        model_card = train_summary.to_model_card()
-        with (self.output_dir / "README.md").open("w") as f:
-            f.write(model_card)
-        self.repo.push_to_hub(commit_message="End of training", blocking=True)
+        else:
+            self.model.save_pretrained(self.output_dir)
+            if self.tokenizer is not None:
+                self.tokenizer.save_pretrained(self.output_dir)
+            train_summary = TrainingSummary.from_keras(
+                model=self.model,
+                model_name=self.hub_model_id,
+                keras_history=self.training_history,
+                **self.model_card_args,
+            )
+            model_card = train_summary.to_model_card()
+            with (self.output_dir / "README.md").open("w") as f:
+                f.write(model_card)
+            self.repo.push_to_hub(commit_message="End of training", blocking=True)

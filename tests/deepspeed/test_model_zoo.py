@@ -18,6 +18,7 @@ import subprocess
 from os.path import dirname
 
 from parameterized import parameterized
+
 from tests.trainer.test_trainer import TrainerIntegrationCommon  # noqa
 from transformers import is_torch_available
 from transformers.testing_utils import (
@@ -130,8 +131,7 @@ SPEECH_TO_TEXT_TINY = "hf-internal-testing/tiny-random-speech_to_text"
 # models with low usage, unstable API, things about to change - do nothing about the following until someone runs into a problem
 TAPAS_TINY = "hf-internal-testing/tiny-random-tapas"
 # additional notes on tapas
-# 1. requires torch_scatter - skip if it's not installed?
-# 2. "Table must be of type pd.DataFrame" failure
+# 1. "Table must be of type pd.DataFrame" failure
 
 
 # TODO: new models to add:
@@ -268,7 +268,7 @@ def make_task_cmds():
             --dataset_name hf-internal-testing/cats_vs_dogs_sample
             --remove_unused_columns False
             --max_steps 10
-            --feature_extractor_name {DS_TESTS_DIRECTORY}/vit_feature_extractor.json
+            --image_processor_name {DS_TESTS_DIRECTORY}/vit_feature_extractor.json
         """,
     )
 

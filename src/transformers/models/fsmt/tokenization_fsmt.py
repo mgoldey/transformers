@@ -195,7 +195,7 @@ class FSMTTokenizer(PreTrainedTokenizer):
         bos_token="<s>",
         sep_token="</s>",
         pad_token="<pad>",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             langs=langs,
@@ -275,8 +275,8 @@ class FSMTTokenizer(PreTrainedTokenizer):
         )
 
     def moses_detokenize(self, tokens, lang):
-        if lang not in self.cache_moses_tokenizer:
-            moses_detokenizer = self.sm.MosesDetokenizer(lang=self.tgt_lang)
+        if lang not in self.cache_moses_detokenizer:
+            moses_detokenizer = self.sm.MosesDetokenizer(lang=lang)
             self.cache_moses_detokenizer[lang] = moses_detokenizer
         return self.cache_moses_detokenizer[lang].detokenize(tokens)
 
