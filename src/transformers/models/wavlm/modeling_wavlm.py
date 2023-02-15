@@ -1644,11 +1644,7 @@ class AMSoftmaxLoss(nn.Module):
         self.margin = margin
         self.num_labels = num_labels
         self.weight = nn.Parameter(torch.randn(input_dim, num_labels), requires_grad=True)
-        self.loss = nn.CrossEntropyLoss(
-            torch.tensor(self.config.label_weights, device=self.device)
-            if self.config.label_weights is not None
-            else None,
-        )
+        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, hidden_states, labels):
         labels = labels.flatten()
